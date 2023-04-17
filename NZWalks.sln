@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NZWalks.API", "NZWalks.API.csproj", "{D6D6CC01-377C-4536-A09E-F87E6137DDCE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D6D6CC01-377C-4536-A09E-F87E6137DDCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6D6CC01-377C-4536-A09E-F87E6137DDCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6D6CC01-377C-4536-A09E-F87E6137DDCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6D6CC01-377C-4536-A09E-F87E6137DDCE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
