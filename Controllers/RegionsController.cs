@@ -121,5 +121,23 @@ public class RegionsController : Controller
 
         return Ok(regionDto);
     }
-    
+
+    // Delete a region
+    // DELETE: https://localhost:portnumber/api/Regions/1
+    [HttpDelete]
+    [Route("{id:guid}")]
+    public IActionResult Delete([FromRoute] Guid id)
+    {
+        // Get the region from the database
+        var region = _dbContext.Regions.FirstOrDefault(x => x.Id == id);
+
+        // If the region is null, return a 404
+        if (region == null) return NotFound();
+
+        // Remove the region from the database
+        _dbContext.Regions.Remove(region);
+        _dbContext.SaveChanges();
+
+        return NoContent();
+    }
 }
