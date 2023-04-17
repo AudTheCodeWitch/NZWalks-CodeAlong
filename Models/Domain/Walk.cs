@@ -7,10 +7,10 @@ public class Walk
     public string Description { get; set; }
     public string LengthInKM { get; set; }
     public string? WalkImageURL { get; set; } // ? means nullable
-    
+
     public Guid DifficultyId { get; set; } // a walk has one difficulty
     public Guid RegionId { get; set; } // a walk has one region
-    
+
     // Navigation properties
     // Navigation properties are used to navigate from one entity to another
     // They are associated with the foreign key of the related entity
