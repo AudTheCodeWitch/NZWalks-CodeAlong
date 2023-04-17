@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NZWalks.API.Data;
+using NZWalks.API.Models.DTO;
 
 namespace NZWalks.API.Controllers;
 
@@ -7,11 +8,11 @@ namespace NZWalks.API.Controllers;
 [ApiController]
 public class RegionsController : Controller
 {
-    private readonly NZWalksDbContext dbContext;
+    private readonly NZWalksDbContext _dbContext;
 
     public RegionsController(NZWalksDbContext dbContext)
     {
-        this.dbContext = dbContext;
+        _dbContext = dbContext;
     }
 
     // GET all regions
@@ -19,10 +20,19 @@ public class RegionsController : Controller
     [HttpGet]
     public IActionResult GetAll()
     {
-        // Get all regions from the database
-        var regions = dbContext.Regions.ToList();
+        // Get all regions from the database - domain models
+        var regions = _dbContext.Regions.ToList();
 
-        return Ok(regions);
+        // Map domain models to DTOs
+        var regionsDto = regions.Select(region => new RegionDto
+        {
+            Id = region.Id,
+            Code = region.Code,
+            Name = region.Name,
+            RegionImageUrl = region.RegionImageURL
+        }).ToList();
+
+        return Ok(regionsDto);
     }
 
     // GET a region by id
@@ -31,12 +41,21 @@ public class RegionsController : Controller
     [Route("{id:guid}")]
     public IActionResult GetById([FromRoute] Guid id)
     {
-        // Get a region from the database
-        var region = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+        // Get a region domain model from the database
+        var region = _dbContext.Regions.FirstOrDefault(x => x.Id == id);
 
         // If the region is null, return a 404
         if (region == null) return NotFound();
 
-        return Ok(region);
+        // Map the domain model to a DTO
+        var regionDto = new RegionDto
+        {
+            Id = region.Id,
+            Code = region.Code,
+            Name = region.Name,
+            RegionImageUrl = region.RegionImageURL
+        };
+
+        return Ok(regionDto);
     }
 }
