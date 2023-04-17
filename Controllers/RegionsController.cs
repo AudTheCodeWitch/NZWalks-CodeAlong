@@ -89,4 +89,37 @@ public class RegionsController : Controller
 
         return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
     }
+
+    // Update a region
+    // PUT: https://localhost:portnumber/api/Regions/1
+    [HttpPut]
+    [Route("{id:guid}")]
+    public IActionResult Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto request)
+    {
+        // Get the region from the database
+        var region = _dbContext.Regions.FirstOrDefault(x => x.Id == id);
+
+        // If the region is null, return a 404
+        if (region == null) return NotFound();
+
+        // Update the region
+        region.Code = request.Code;
+        region.Name = request.Name;
+        region.RegionImageURL = request.RegionImageUrl;
+
+        // Save the changes to the database
+        _dbContext.SaveChanges();
+
+        // Map the domain model back to a DTO
+        var regionDto = new RegionDto
+        {
+            Id = region.Id,
+            Code = region.Code,
+            Name = region.Name,
+            RegionImageUrl = region.RegionImageURL
+        };
+
+        return Ok(regionDto);
+    }
+    
 }
