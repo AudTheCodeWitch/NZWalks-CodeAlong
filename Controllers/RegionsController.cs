@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NZWalks.API.Data;
+using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
 
 namespace NZWalks.API.Controllers;
@@ -16,7 +17,7 @@ public class RegionsController : Controller
     }
 
     // GET all regions
-    // GET: https://localhost:5001/api/Regions
+    // GET: https://localhost:portnumber/api/Regions
     [HttpGet]
     public IActionResult GetAll()
     {
@@ -36,7 +37,7 @@ public class RegionsController : Controller
     }
 
     // GET a region by id
-    // GET: https://localhost:5001/api/Regions/1
+    // GET: https://localhost:portnumber/api/Regions/1
     [HttpGet]
     [Route("{id:guid}")]
     public IActionResult GetById([FromRoute] Guid id)
@@ -57,5 +58,35 @@ public class RegionsController : Controller
         };
 
         return Ok(regionDto);
+    }
+
+    // Create a new region
+    // POST: https://localhost:portnumber/api/Regions
+    [HttpPost]
+    public IActionResult Create([FromBody] AddRegionRequestDto request)
+    {
+        // Map or convert the DTO to a domain model
+        var regionDomainModel = new Region
+        {
+            Id = Guid.NewGuid(),
+            Code = request.Code,
+            Name = request.Name,
+            RegionImageURL = request.RegionImageUrl
+        };
+
+        // Add the region to the database
+        _dbContext.Regions.Add(regionDomainModel);
+        _dbContext.SaveChanges();
+
+        // Map the domain model back to a DTO
+        var regionDto = new RegionDto
+        {
+            Id = regionDomainModel.Id,
+            Code = regionDomainModel.Code,
+            Name = regionDomainModel.Name,
+            RegionImageUrl = regionDomainModel.RegionImageURL
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
     }
 }
