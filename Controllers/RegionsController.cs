@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
+using NZWalks.API.Repositories;
 
 namespace NZWalks.API.Controllers;
 
@@ -10,11 +9,11 @@ namespace NZWalks.API.Controllers;
 [ApiController]
 public class RegionsController : Controller
 {
-    private readonly NZWalksDbContext _dbContext;
+    private readonly IRegionRepository _regionRepository;
 
-    public RegionsController(NZWalksDbContext dbContext)
+    public RegionsController(IRegionRepository regionRepository)
     {
-        _dbContext = dbContext;
+        _regionRepository = regionRepository;
     }
 
     // GET all regions
@@ -23,15 +22,20 @@ public class RegionsController : Controller
     public async Task<IActionResult> GetAll()
     {
         // Get all regions from the database - domain models
-        var regions = await _dbContext.Regions.ToListAsync();
+        var regions = await _regionRepository.GetAllAsync();
 
         // Map domain models to DTOs
-        var regionsDto = regions.Select(region => new RegionDto
+        var regionsDto = regions.Select(region =>
         {
-            Id = region.Id,
-            Code = region.Code,
-            Name = region.Name,
-            RegionImageUrl = region.RegionImageURL
+            if (region != null)
+                return new RegionDto
+                {
+                    Id = region.Id,
+                    Code = region.Code,
+                    Name = region.Name,
+                    RegionImageUrl = region.RegionImageURL
+                };
+            throw new InvalidOperationException();
         }).ToList();
 
         return Ok(regionsDto);
@@ -44,7 +48,7 @@ public class RegionsController : Controller
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         // Get a region domain model from the database
-        var region = await _dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
+        var region = await _regionRepository.GetByIdAsync(id);
 
         // If the region is null, return a 404
         if (region == null) return NotFound();
@@ -76,8 +80,7 @@ public class RegionsController : Controller
         };
 
         // Add the region to the database
-        await _dbContext.Regions.AddAsync(regionDomainModel);
-        await _dbContext.SaveChangesAsync();
+        regionDomainModel = await _regionRepository.CreateAsync(regionDomainModel);
 
         // Map the domain model back to a DTO
         var regionDto = new RegionDto
@@ -97,20 +100,19 @@ public class RegionsController : Controller
     [Route("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto request)
     {
+        // Map DTO to domain model
+        var regionDomainModel = new Region
+        {
+            Code = request.Code,
+            Name = request.Name,
+            RegionImageURL = request.RegionImageUrl
+        };
+        
         // Get the region from the database
-        var region = await _dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
-
-        // If the region is null, return a 404
+        var region = await _regionRepository.UpdateAsync(id, regionDomainModel);
+        
         if (region == null) return NotFound();
-
-        // Update the region
-        region.Code = request.Code;
-        region.Name = request.Name;
-        region.RegionImageURL = request.RegionImageUrl;
-
-        // Save the changes to the database
-        await _dbContext.SaveChangesAsync();
-
+        
         // Map the domain model back to a DTO
         var regionDto = new RegionDto
         {
@@ -130,15 +132,10 @@ public class RegionsController : Controller
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         // Get the region from the database
-        var region = await _dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
-
-        // If the region is null, return a 404
+        var region = await _regionRepository.DeleteAsync(id);
+        
         if (region == null) return NotFound();
-
-        // Remove the region from the database
-        _dbContext.Regions.Remove(region);
-        await _dbContext.SaveChangesAsync();
-
+        
         return NoContent();
     }
 }
