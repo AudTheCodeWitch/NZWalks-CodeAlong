@@ -20,12 +20,38 @@ public class SqlWalkRepository : IWalkRepository
         return walk;
     }
 
-    public async Task<List<Walk?>> GetAllAsync()
+    public async Task<List<Walk?>> GetAllAsync(
+        string? filterOn = null,
+        string? filterQuery = null,
+        string? sortBy = null,
+        bool isAscending = true)
     {
-        return await _dbContext.Walks
+        var walks = _dbContext.Walks
             .Include("Difficulty")
             .Include("Region")
-            .ToListAsync();
+            .AsQueryable();
+
+        // Filtering
+        if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+            if (filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                walks = walks.Where(x => x.Name.Contains(filterQuery));
+
+        // Sorting
+        if (string.IsNullOrWhiteSpace(sortBy) == false)
+        {
+            if (sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+            {
+                if (isAscending)
+                    walks = isAscending ? walks.OrderBy(x => x.Name) : walks.OrderByDescending(x => x.Name);
+            }
+            else if (sortBy.Equals("Length", StringComparison.OrdinalIgnoreCase))
+            {
+                if (isAscending)
+                    walks = isAscending ? walks.OrderBy(x => x.LengthInKM) : walks.OrderByDescending(x => x.LengthInKM);
+            }
+        }
+
+        return await walks.ToListAsync();
     }
 
     public async Task<Walk?> GetByIdAsync(Guid id)

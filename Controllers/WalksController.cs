@@ -38,11 +38,15 @@ public class WalksController : Controller
     }
 
     // Read
-    // GET: api/walks
+    // GET: api/walks?filterOn=Name&filterQuery=Track&SortBy=Name&isAscending=true
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] string? filterOn,
+        [FromQuery] string? filterQuery,
+        [FromQuery] string? sortBy,
+        [FromQuery] bool? isAscending = true)
     {
-        var walksDomainModel = await _walkRepository.GetAllAsync();
+        var walksDomainModel = await _walkRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending ?? true);
 
         // Map Domain Model to DTO
         var walksDto = _mapper.Map<List<WalkDto>>(walksDomainModel);
