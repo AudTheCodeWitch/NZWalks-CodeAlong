@@ -25,6 +25,8 @@ public class WalksController : Controller
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         // Map DTO to Domain Model
         var walkDomainModel = _mapper.Map<Walk>(addWalkRequestDto);
 
@@ -67,6 +69,8 @@ public class WalksController : Controller
     [Route("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDto updateWalkRequestDto)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        
         // Map DTO to Domain Model
         var walkDomainModel = _mapper.Map<Walk>(updateWalkRequestDto);
 

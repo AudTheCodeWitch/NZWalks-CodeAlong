@@ -53,6 +53,8 @@ public class RegionsController : Controller
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AddRegionRequestDto request)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        
         // Map or convert the DTO to a domain model
         var regionDomainModel = _mapper.Map<Region>(request);
 
@@ -63,6 +65,7 @@ public class RegionsController : Controller
         var regionDto = _mapper.Map<RegionDto>(regionDomainModel);
 
         return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
+
     }
 
     // Update a region
@@ -71,6 +74,8 @@ public class RegionsController : Controller
     [Route("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto request)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        
         // Map DTO to domain model
         var regionDomainModel = _mapper.Map<Region>(request);
         
