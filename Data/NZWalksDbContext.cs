@@ -13,7 +13,7 @@ public class NzWalksDbContext : DbContext
 
     public DbSet<Region> Regions { get; set; }
 
-    public DbSet<Walk> Walks { get; set; }
+    public DbSet<Walk?> Walks { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
